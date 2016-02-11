@@ -148,7 +148,7 @@ let rec lookup(name:string, env: Bindings) =
             lookup(name, xs)
                                
                     
-let env:Bindings = [("a",4);("a",3);("b",4);("c",5)]
+
 
 //System.Console.Write(lookup("a", env))
 
@@ -173,17 +173,45 @@ let rec insert(name:string, value: int, b: Bindings) =
         else
             x1::insert(name, value, xs)
 
-//System.Console.Write(insert("d",5, env));
 
 (* The recursive evaluator.  You have to match on the exp.  If a variable is not
 found return None.  If you are applying an operator to None and something else the
 answer is None.  This leads to a program of about 20 lines but it is conceptually
 very easy.  *)
 
-//let rec eval(exp : Exptree, env:Bindings) = failwith "Error - not implemented"
-//              | Some u -> Some (u * v);;
+
+
+let rec eval(exp : Exptree, env:Bindings) =
 (* val eval : exp:Exptree * env:Bindings -> int option  *)
+    match exp with
+    | Const a -> Some(a)
+    | Var str -> 
+        let result = lookup(str, env)
+        if result = None then 
+            None 
+        else 
+            result
+    | Add(u, v) -> 
+        if eval(u, env) = None || eval(v, env) = None then
+            None 
+        else
+            let a = eval(u, env)
+            let b = eval(v, env)
+            match a, b with
+            | (_, None) -> None
+            | (None, _) -> None
+            | Some (l), Some (r) -> Some(l + r)
+    | Mul(u, v) ->
+        if eval(u, env) = None || eval(v, env) = None then 
+            None
+        else 
+            let a = eval(u, env)
+            let b = eval(v, env)
+            match a, b with
+            | (_, None) -> None
+            | (None, _) -> None
+            | Some (l), Some (r) -> Some(l * r)
 
-
-
+let env:Bindings = [("a",4);("a",3);("b",4);("c",5)]
+System.Console.Write(eval(Add(Var "a", Const 3), env))
 
