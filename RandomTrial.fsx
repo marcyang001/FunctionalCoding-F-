@@ -192,26 +192,101 @@ let rec eval(exp : Exptree, env:Bindings) =
         else 
             result
     | Add(u, v) -> 
-        if eval(u, env) = None || eval(v, env) = None then
-            None 
-        else
-            let a = eval(u, env)
-            let b = eval(v, env)
-            match a, b with
-            | (_, None) -> None
-            | (None, _) -> None
-            | Some (l), Some (r) -> Some(l + r)
+        let a = eval(u, env)
+        let b = eval(v, env)
+        match a, b with
+        | (_, None) -> None
+        | (None, _) -> None
+        | Some (l), Some (r) -> Some(l + r)
     | Mul(u, v) ->
-        if eval(u, env) = None || eval(v, env) = None then 
-            None
-        else 
-            let a = eval(u, env)
-            let b = eval(v, env)
-            match a, b with
-            | (_, None) -> None
-            | (None, _) -> None
-            | Some (l), Some (r) -> Some(l * r)
+        let a = eval(u, env)
+        let b = eval(v, env)
+        match a, b with
+        | (_, None) -> None
+        | (None, _) -> None
+        | Some (l), Some (r) -> Some(l * r)
 
 let env:Bindings = [("a",4);("a",3);("b",4);("c",5)]
-System.Console.Write(eval(Add(Var "a", Const 3), env))
+let exp4 : Exptree = Mul (Add (Var "e",Var "e"),Add (Const 3,Var "b"))
+//System.Console.Write(eval(exp4, env))
+
+(* Question 3 *)
+(* Most of these functions are only one or two lines.  One of them, the longest is
+about 5 lines.  However, they require some thought.  They are short because I used
+the Set library functions wherever I could.  I especially found Set.fold useful. *)
+
+
+
+
+
+type Country = string;;
+type Chart = Set<Country*Country>;;
+type Colour = Set<Country>;;
+type Colouring = Set<Colour>;;
+let myWorld:Chart = Set.ofList [("Andorra","Benin");("Andorra","Canada");("Andorra","Denmark");("Benin","Canada"); ("Benin","Denmark");("Canada","Denmark");("Estonia","Canada");("Estonia","Denmark");("Estonia","Finland");("Finland","Greece");("Finland","Benin");("Greece","Benin");("Greece","Denmark");("Greece","Estonia")]
+
+(* This is how you tell that two countries are neghbours.  It requires a chart.*)
+let areNeighbours ct1 ct2 chart =
+  Set.contains (ct1,ct2) chart || Set.contains (ct2,ct1) chart;;
+(* val areNeighbours :
+  ct1:'a -> ct2:'a -> chart:Set<'a * 'a> -> bool when 'a : comparison
+  *)
+
+let n = areNeighbours "Andorra" "Benin" myWorld
+
+
+
+(* The colour col can be extended by the country ct when they are no neighbours
+according to chart.*)
+  
+let countries = Set ["Estonia"; "Finland"]
+let c:Country = "asdasfafaasdasdasd"
+
+let canBeExtBy col ct chart = 
+    Set.forall(fun x -> not (areNeighbours ct x chart)) col 
+(*
+  val canBeExtBy :
+  col:Set<'a> -> ct:'a -> chart:Set<'a * 'a> -> bool when 'a : comparison
+*)
+
+
+
+
+
+(* Here you have to extend a colouring by a fixed country. *)
+let rec extColouring (chart: Chart) (colours : Colouring) (country : Country) =
+    if (colours.IsEmpty = true) then 
+        colours.Add(set[country])
+    else 
+        let chosen = Set.minElement(colours)
+        let rest = Set.remove chosen colours
+        if canBeExtBy chosen country chart = true then 
+            let newChosen = chosen.Add(country)
+            rest.Add(newChosen)
+        else
+            set[chosen] + extColouring chart rest country
+(*
+val extColouring :
+  chart:Chart -> colours:Colouring -> country:Country -> Set<Set<Country>>
+*)            
+
+let colorYo = set[set["Andorra"; "x"; "F"]; set["zasd"]]
+let countries1 = set["Andorra"; "Estonia"]
+//System.Console.Write(canBeExtBy countries1 "x" myWorld)
+System.Console.Write(extColouring myWorld colorYo "Canada")
+
+
+
+
+
+
+(* This collects the names of the countries in the chart.  A good place
+to use Set.fold *) 
+//let countriesInChart (chart : Chart) = failwith "Error - not implemented"
+(* val countriesInChart : chart:Chart -> Set<Country> *)
+
+(* Here is the final function.  It is also most conveniently done with Set.fold *)
+//let colourTheCountries (chart: Chart)  = failwith "Error - not implemented"
+(* val colourTheCountries : chart:Chart -> Colouring *)
+
 
