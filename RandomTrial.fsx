@@ -273,20 +273,28 @@ val extColouring :
 let colorYo = set[set["Andorra"; "x"; "F"]; set["zasd"]]
 let countries1 = set["Andorra"; "Estonia"]
 //System.Console.Write(canBeExtBy countries1 "x" myWorld)
-System.Console.Write(extColouring myWorld colorYo "Canada")
-
-
+//System.Console.Write(extColouring myWorld colorYo "Canada")
 
 
 
 
 (* This collects the names of the countries in the chart.  A good place
 to use Set.fold *) 
-//let countriesInChart (chart : Chart) = failwith "Error - not implemented"
+
+
+
+(* This collects the names of the countries in the chart.  A good place
+to use Set.fold *) 
+let countriesInChart (chart : Chart) = 
+    Set.fold(fun (accSet:Colour) (c1, c2) -> accSet.Add(c1).Add(c2)) Set.empty chart
 (* val countriesInChart : chart:Chart -> Set<Country> *)
 
-(* Here is the final function.  It is also most conveniently done with Set.fold *)
-//let colourTheCountries (chart: Chart)  = failwith "Error - not implemented"
-(* val colourTheCountries : chart:Chart -> Colouring *)
+
+
+let colourTheCountries (chart: Chart)  =
+    let set1 = countriesInChart chart 
+    Set.fold(fun acc country -> extColouring chart acc country) Set.empty set1
+
+
 
 
