@@ -1,43 +1,46 @@
-﻿let rec iter_sum(f, lo:float, hi:float, inc) =
-  let rec helper(x:float, result:float) =
-    if (x > hi) then result
-    else helper(inc(x), f(x) + result)
-  helper(lo,0.0);;
+﻿(* Assignment 2 *) (* Do not edit this line. *)
+(* Student name: Marc Yang, Id Number: 260531701 *) (* Edit this line. *)
 
-let integral(f,lo:float,hi:float,dx:float) =
-  let delta (x:float) = x+dx
-  dx * iter_sum(f,(lo + (dx/2.0)), hi, delta)
+(* In the template below we have written the names of the functions that
+you need to define.  You MUST use these names.  If you introduce auxiliary
+functions you can name them as you like except that your names should not
+clash with any of the names we are using.  We have also shown the types
+that you should have.  Your code must compile and must not go into infinite
+loops.  You are free to use library functions now.  But loops are BANNED
+as is any kind of imperative code based on updating values.  You can make functions
+recursive at top level or modify them so that the recursion is hidden inside.  The
+only things we really insist on are: (a) use the names we have used and (b) the
+functions must have the types that we have shown.  We hope by now you understand that
+everywhere where it says failwith "Error - not implemented" you have to remove this
+and replace it with your code.  *)
 
-let r_sq (x:float):float = x * x
+(* Question 1 *)
 
-integral(r_sq,0.0,1.0,0.001)
-let delta (x:float) = x + 1.0
+let deriv (f, dx: float) = fun x -> ((f(x + dx) - f(x))/dx)
+(* val deriv : f:(float -> float) * dx:float -> x:float -> float *)
 
-//System.Console.Write(delta(1.0))
-//System.Console.Write(iter_sum(r_sq, 1.0, 3.0, delta));
+let rec newton(f,guess:float,tol:float,dx:float) = 
+    if (abs(f(guess)) < tol) then guess - f(guess)/(deriv(f, dx) guess)
+    else 
+        let newGuess = guess - f(guess)/(deriv(f, dx) guess)
+        newton(f, newGuess, tol, dx)
+(* val newton : f:(float -> float) * guess:float * tol:float * dx:float -> float *)
 
-//System.Console.Write(integral(sin,0.0, 3.14159, 0.001))
+(* For testing 
+let make_cubic(a:float,b,c) = fun x -> (x*x*x + a * x*x + b*x + c);;
+newton(make_cubic(2.0,-3.0,1.0),0.0,0.0001,0.0001);;
+*)
+
+(* Question 2 *)
 
 type term = float * int
 type poly = term list
 
-
-
 exception EmptyList
 
-let t1:term = (1.0, 8)
-
-let (a, b) = t1
-//System.Console.Write(a)
-
-let l1:poly = [(3.5, 4); (4.0, 3)]
-//System.Console.Write(l1)
- 
-
-
-let mtp(t:term,p:poly):poly =
+(* Multiply a term by a polynomial. *)
+let mtp(t:term,p:poly):poly = 
    if p = [] then raise (EmptyList)
-
    else 
         let rec helper (t:term,ppoly:poly) = 
             let (c, cx) = t
@@ -47,12 +50,9 @@ let mtp(t:term,p:poly):poly =
             let (ax, bx) = x
             [(ax * c, cx+bx )] @ helper(t, xs)
         helper(t, p)
+(* val mtp : t:term * p:poly -> poly *)
 
 
-let d:poly = [(2.0, 5)]
-let p:poly = [(2.0,6);(2.0,5);(2.0,1);(2.0,0)]
-let p2:poly = [(2.1,7);(2.0,2);(2.0,1);(2.0,0)]
- 
 (* Add a term to a polynomial. *)
 let rec atp(t:term,p:poly):poly = 
 (* val atp : t:term * p:poly -> poly *)
@@ -67,15 +67,20 @@ let rec atp(t:term,p:poly):poly =
              (a,b)::atp(t, xs)
            else
               t::x::xs
-    
+
+(* Add two polynomials.  The result must be properly represented. This means you
+cannot have more than one term with the same exponent, you should not have a
+term with a zero coefficient, except when the whole polynomial is zero and the
+terms should be decreasing order of exponents.   Thus, for example,
+5.2 x^7 - 3.8 x^4 +2.0 x - 1729.0 should be represented as
+[(5.2,7);(-3.8,4);(2.0,1);(-1729.0,0)] *)
+
 let rec addpolys(p1:poly,p2:poly):poly = 
 (* val addpolys : p1:poly * p2:poly -> poly *)
     match p1 with
     | [] -> p2
     | x::xs -> 
         addpolys(xs, atp(x,p2))
-           
-
 
 (* Multiply two polynomials.  All the remarks above apply here too. Raise an
 exception if one of the polynomials is the empty list. *)
@@ -89,16 +94,15 @@ let rec multpolys(p1:poly,p2:poly) =
 (* This is the tail-recursive version of Russian peasant exponentiation.  I have
 done it for you.  You will need it for the next question.  *)
 let exp(b:float, e:int) =
-    let rec helper(b:float, e:int, a: float) =
-        if (b = 0.0) then 0.0
-        elif (e = 0) then a
-        elif (e % 2 = 1) then helper(b,e-1, b*a)
-        else helper(b*b,e/2,a)
-    helper(b,e,1.0)
+  let rec helper(b:float, e:int, a: float) =
+    if (b = 0.0) then 0.0
+    elif (e = 0) then a
+    elif (e % 2 = 1) then helper(b,e-1, b*a)
+    else helper(b*b,e/2,a)
+  helper(b,e,1.0)
 
 (* Here is how you evaluate a term. *)
 let evalterm (v:float) ((c,e):term) = if (e=0) then c else c * exp(v,e)
-
 
 (* Evaluate a polynomial viewed as a function of the indeterminate.  Use the function
 above and List.fold and List.map and a dynamically created function for a one-line
@@ -106,6 +110,7 @@ answer.  *)
 let evalpoly(p:poly,v:float):float = 
 (* val evalpoly : p:poly * v:float -> float *)
     List.fold (fun acc termval -> acc + termval) 0.0 (p |> List.map(fun x -> evalterm v x))
+
 
 (* Compute the derivative of a polynomial as a symbolic representation.  Do NOT use
 deriv defined above.  I want the answer to be a polynomial represented as a list.
@@ -117,6 +122,60 @@ let rec diff (p:poly):poly =
     | (coef,deg)::xs ->  
          if deg = 0 then [(0.0, 0)] else (coef * float(deg), deg-1)::(diff xs)
 
+    
+(* Question 3 *)
+(* Most of these functions are only one or two lines.  One of them, the longest is
+about 5 lines.  However, they require some thought.  They are short because I used
+the Set library functions wherever I could.  I especially found Set.fold useful. *)
+
+type Country = string;;
+type Chart = Set<Country*Country>;;
+type Colour = Set<Country>;;
+type Colouring = Set<Colour>;;
+
+(* This is how you tell that two countries are neghbours.  It requires a chart.*)
+let areNeighbours ct1 ct2 chart =
+  Set.contains (ct1,ct2) chart || Set.contains (ct2,ct1) chart;;
+(* val areNeighbours :
+  ct1:'a -> ct2:'a -> chart:Set<'a * 'a> -> bool when 'a : comparison
+  *)
+
+(* The colour col can be extended by the country ct when they are no neighbours
+according to chart.*)
+  
+let canBeExtBy col ct chart =  
+    Set.forall(fun x -> not (areNeighbours ct x chart)) col 
+(*
+   val canBeExtBy :
+  col:Set<'a> -> ct:'a -> chart:Set<'a * 'a> -> bool when 'a : comparison
+*)
+
+(* Here you have to extend a colouring by a fixed country. *)
+let rec extColouring (chart: Chart) (colours : Colouring) (country : Country) =
+    if (colours.IsEmpty = true) then 
+        colours.Add(set[country])
+    else 
+        let chosen = Set.minElement(colours)
+        let rest = Set.remove chosen colours
+        if canBeExtBy chosen country chart = true then 
+            let newChosen = chosen.Add(country)
+            rest.Add(newChosen)
+        else
+            set[chosen] + extColouring chart rest country
+
+
+(* This collects the names of the countries in the chart.  A good place
+to use Set.fold *) 
+let countriesInChart (chart : Chart) = 
+    Set.fold(fun (accSet:Colour) (c1, c2) -> accSet.Add(c1).Add(c2)) Set.empty chart
+(* val countriesInChart : chart:Chart -> Set<Country> *)
+
+(* Here is the final function.  It is also most conveniently done with Set.fold *)
+let colourTheCountries (chart: Chart)  =
+    let set1 = countriesInChart chart 
+    Set.fold(fun acc country -> extColouring chart acc country) Set.empty set1
+
+(* val colourTheCountries : chart:Chart -> Colouring *)
 
 (* Question 4 *)
 
@@ -147,14 +206,6 @@ let rec lookup(name:string, env: Bindings) =
             lookup(name, xs)
                                
                     
-
-
-//System.Console.Write(lookup("a", env))
-
-            
-                
-                
-
 (* Insert a new binding.  If the name is already there then the new binding should
 be put in front of it so that the lookup finds the latest binding.  *)
 let rec insert(name:string, value: int, b: Bindings) = 
@@ -172,13 +223,10 @@ let rec insert(name:string, value: int, b: Bindings) =
         else
             x1::insert(name, value, xs)
 
-
 (* The recursive evaluator.  You have to match on the exp.  If a variable is not
 found return None.  If you are applying an operator to None and something else the
 answer is None.  This leads to a program of about 20 lines but it is conceptually
 very easy.  *)
-
-
 
 let rec eval(exp : Exptree, env:Bindings) =
 (* val eval : exp:Exptree * env:Bindings -> int option  *)
@@ -205,82 +253,9 @@ let rec eval(exp : Exptree, env:Bindings) =
         | (None, _) -> None
         | Some (l), Some (r) -> Some(l * r)
 
-let env:Bindings = [("a",4);("a",3);("b",4);("c",5)]
-let exp4 : Exptree = Mul (Add (Var "e",Var "e"),Add (Const 3,Var "b"))
-//System.Console.Write(eval(exp4, env))
-
-(* Question 3 *)
-(* Most of these functions are only one or two lines.  One of them, the longest is
-about 5 lines.  However, they require some thought.  They are short because I used
-the Set library functions wherever I could.  I especially found Set.fold useful. *)
-
-
-
-
-
-type Country = string;;
-type Chart = Set<Country*Country>;;
-type Colour = Set<Country>;;
-type Colouring = Set<Colour>;;
+(* val eval : exp:Exptree * env:Bindings -> int option  *)
 let myWorld:Chart = Set.ofList [("Andorra","Benin");("Andorra","Canada");("Andorra","Denmark");("Benin","Canada"); ("Benin","Denmark");("Canada","Denmark");("Estonia","Canada");("Estonia","Denmark");("Estonia","Finland");("Finland","Greece");("Finland","Benin");("Greece","Benin");("Greece","Denmark");("Greece","Estonia")]
 
-(* This is how you tell that two countries are neghbours.  It requires a chart.*)
-let areNeighbours ct1 ct2 chart =
-  Set.contains (ct1,ct2) chart || Set.contains (ct2,ct1) chart;;
-(* val areNeighbours :
-  ct1:'a -> ct2:'a -> chart:Set<'a * 'a> -> bool when 'a : comparison
-  *)
-
-let n = areNeighbours "Andorra" "Benin" myWorld
-
-
-
-(* The colour col can be extended by the country ct when they are no neighbours
-according to chart.*)
-  
-let countries = Set ["Estonia"; "Finland"]
-let c:Country = "asdasfafaasdasdasd"
-
-let canBeExtBy col ct chart = 
-    Set.forall(fun x -> not (areNeighbours ct x chart)) col 
-(*
-  val canBeExtBy :
-  col:Set<'a> -> ct:'a -> chart:Set<'a * 'a> -> bool when 'a : comparison
-*)
-
-
-
-
-
-(* Here you have to extend a colouring by a fixed country. *)
-let rec extColouring (chart: Chart) (colours : Colouring) (country : Country) =
-    if (colours.IsEmpty = true) then 
-        colours.Add(set[country])
-    else 
-        let chosen = Set.minElement(colours)
-        let rest = Set.remove chosen colours
-        if canBeExtBy chosen country chart = true then 
-            let newChosen = chosen.Add(country)
-            rest.Add(newChosen)
-        else
-            set[chosen] + extColouring chart rest country
-
-(* This collects the names of the countries in the chart.  A good place
-to use Set.fold *) 
-let countriesInChart (chart : Chart) = 
-    Set.fold(fun (accSet:Colour) (c1, c2) -> accSet.Add(c1).Add(c2)) Set.empty chart
-(* val countriesInChart : chart:Chart -> Set<Country> *)
-
-
-
-let colourTheCountries (chart: Chart)  =
-    let set1 = countriesInChart chart 
-    Set.fold(fun acc country -> extColouring chart acc country) Set.empty set1
-
-let colorYo = set[set["Andorra"; "x"; "F"]; set["zasd"]]
-let countries1 = set["Andorra"; "Estonia"]
-//System.Console.Write(canBeExtBy countries1 "x" myWorld)
-//System.Console.Write(extColouring myWorld colorYo "Canada")
-
+//System.Console.Write(colourTheCountries myWorld)
 
 
