@@ -45,7 +45,7 @@ let variance l =
     let s_list = squarelist md_list
     mean s_list
 
-System.Console.WriteLine(variance list1)
+//System.Console.WriteLine(variance list1)
 
 (*
 let rec helper(sum, list, counter) = 
@@ -56,5 +56,11 @@ let rec helper(sum, list, counter) =
  
    *)
 
+let smash ll = List.fold(@)[] ll
+
+
+let n = [[1;2;3]; [2;12;3]; [5;2;5]]
+
+smash n
 
 
