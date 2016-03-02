@@ -57,23 +57,61 @@ open System.Collections.Generic;;
 
 type ListTree<'a> = Node of 'a * (ListTree<'a> list)
 
-let bfIter f ltr = failwith "Error - not implemented"
+(* For testing.  Uncomment if you want to use them. *)
+let n14 = Node("14", [])
+let n13 = Node("13", [n14])
+let n5 = Node("5.0",[])
+let n6 = Node("6.0",[])
+let n7 = Node("7.0",[])
+let n8 = Node("8.0",[])
+let n9 = Node("9.0",[])
+let n10 = Node("10.0",[])
+let n12 = Node("12.0",[n13])
+let n11 = Node("11.0",[n12])
+let n2 = Node("2.0",[n5;n6;n7;n8])
+let n3 = Node("3.0",[n9;n10])
+let n4 = Node("4.0",[n11])
+let n1 = Node("1.0",[n2;n3;n4])
+
+
+
+//let q = Queue<ListTree<'a>> ()
+//q.Enqueue(n1)
+
+//let Node(parent, childrenList) = q.Dequeue()
+
+
+
+
+let bfIter f ltr = 
+    let q = Queue<'a> ()
+    match ltr with
+    | Node(a, b) -> q.Enqueue(a)
+    let rec helper (item) = 
+        match item with
+        | Node(parent, list) -> 
+            if not list.IsEmpty then
+                for i in list do
+                    match i with
+                    | Node(a, l) ->
+                        q.Enqueue(a)
+            for j in list do
+                helper(j)
+    helper(ltr)
+    while q.Count <> 0 do
+        let c = q.Dequeue()
+        f c
+
+bfIter (fun n -> printfn "%s" n) n1;;
+ 
+    
 (*   This is how you set up a new Queue: let todo = Queue<ListTree<'a>> () *)
 
-(* For testing.  Uncomment if you want to use them. 
-let n5 = Node(5,[])
-let n6 = Node(6,[])
-let n7 = Node(7,[])
-let n8 = Node(8,[])
-let n9 = Node(9,[])
-let n10 = Node(10,[])
-let n12 = Node(12,[])
-let n11 = Node(11,[n12])
-let n2 = Node(2,[n5;n6;n7;n8])
-let n3 = Node(3,[n9;n10])
-let n4 = Node(4,[n11])
-let n1 = Node(1,[n2;n3;n4])
-*)
+
+
+
+
+
 
 
 (* How I tested the BFS program.   
