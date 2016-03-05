@@ -42,13 +42,15 @@ let make_protected_account(opening_balance: int,password: string) =
             printfn "Password is incorrect"
         else
             match t with
-            | Withdraw(m)-> if (!balance > m) then
+            | Withdraw(m)-> if (!balance >= m) then
                                 balance := !balance - m
                                 printfn "Balance is %i" !balance
                             else
                                 printfn "Insufficient funds. You have only %i" !balance
             | Deposit(m) -> (balance := !balance + m; (printf "Balance is %i\n" !balance))
             | CheckBalance -> (printf "Balance is %i\n" !balance)
+
+
 
 
 (* Question 3 *)
@@ -85,7 +87,7 @@ let bfIter f ltr =
         f a
         b |> List.iter (fun (Node(i, j) as x) -> q.Enqueue(x))
 
-bfIter (fun n -> printfn "%s" n) n2;;
+//bfIter (fun n -> printfn "%s" n) n2;;
 
 
 
