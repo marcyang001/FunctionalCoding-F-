@@ -58,15 +58,15 @@ open System.Collections.Generic;;
 type ListTree<'a> = Node of 'a * (ListTree<'a> list)
 
 (* For testing.  Uncomment if you want to use them. *)
-let n14 = Node("14", [])
-let n13 = Node("13", [n14])
+//let n14 = Node("14", [])
+//let n13 = Node("13", [n14])
 let n5 = Node("5.0",[])
 let n6 = Node("6.0",[])
 let n7 = Node("7.0",[])
 let n8 = Node("8.0",[])
 let n9 = Node("9.0",[])
 let n10 = Node("10.0",[])
-let n12 = Node("12.0",[n13])
+let n12 = Node("12.0",[])
 let n11 = Node("11.0",[n12])
 let n2 = Node("2.0",[n5;n6;n7;n8])
 let n3 = Node("3.0",[n9;n10])
@@ -75,14 +75,21 @@ let n1 = Node("1.0",[n2;n3;n4])
 
 
 
-//let q = Queue<ListTree<'a>> ()
-//q.Enqueue(n1)
 
-//let Node(parent, childrenList) = q.Dequeue()
+let bfIter f ltr = 
+    let q = Queue<ListTree<'a>> ()
+    q.Enqueue(ltr)
+    let (Node(a, b)) = ltr
+    while (q.Count <> 0) do
+        let (Node(a, b)) = q.Dequeue()
+        f a
+        b |> List.iter (fun (Node(i, j) as x) -> q.Enqueue(x))
+
+bfIter (fun n -> printfn "%s" n) n2;;
 
 
 
-
+(*
 let bfIter f ltr = 
     let q = Queue<'a> ()
     match ltr with
@@ -101,8 +108,9 @@ let bfIter f ltr =
     while q.Count <> 0 do
         let c = q.Dequeue()
         f c
+        bfIter (fun n -> printfn "%s" n) n11;;
+        *)
 
-bfIter (fun n -> printfn "%s" n) n1;;
  
     
 (*   This is how you set up a new Queue: let todo = Queue<ListTree<'a>> () *)
