@@ -53,37 +53,33 @@ let applySubst (sigma: substitution) (tau: typExp) : typExp =
 let rec unify (tau1: typExp) (tau2:typExp) : substitution =
     match tau1, tau2 with
     | TypInt, TypInt -> []
-    | TypInt, TypVar b -> 
-                          [(b, TypInt)]
+    | TypInt, TypVar b -> [(b, TypInt)]
     | TypInt, Arrow(x, y) -> failwith "Not unifiable"
-    | TypInt, Lst x ->  failwith "Clash in principal type constructor"
-    | TypVar a, TypInt -> 
-                          [(a, TypInt)]
+    | TypInt, Lst x ->  if (x = TypInt) then failwith "Clash in principal type constructor" else failwith "Not unifiable"
+    | TypVar a, TypInt -> [(a, TypInt)]
     | TypVar a, TypVar b -> [(a, TypVar b)]
-    | TypVar a, Arrow(x, y) -> failwith "Not unifiable"
-    | TypVar a, Lst x -> []
+    | TypVar a, Arrow(x, y) -> if (occurCheck (a) (Arrow(x, y)) = false) then [(a, Arrow(x, y))] else failwith "Failed occurs check"
+    | TypVar a, Lst x -> if (occurCheck (a) x = false) then [(a, Lst x)] else failwith "Failed occurs check"
     | Arrow(x, y), TypInt ->  failwith "Not unifiable"
-    | Arrow(x, y), TypVar b ->  failwith "Not unifiable"
-    | Arrow(x, y), Lst z ->  failwith "Not unifiable"
+    | Arrow(x, y), TypVar b ->  if (occurCheck (b) (Arrow(x, y)) = false) then [(b, Arrow(x, y))] else failwith "Failed occurs check"
+    | Arrow(x, y), Lst z ->  if (z = Arrow(x, y)) then failwith "Clash in principal type constructor" else failwith "Not unifiable"
     | Arrow(x1, y1), Arrow(x2, y2) -> let firstHalf = unify(x1) (x2)
                                       let newExp1 = applySubst (firstHalf) y1
                                       let newExp2 = applySubst (firstHalf) y2
                                       unify newExp1 newExp2 @ firstHalf 
-    | Lst z, TypInt -> failwith "Clash in principal type constructor"
-    | Lst z, TypVar b -> []
-    | Lst z, Arrow(x, y) -> failwith "Not unifiable"
-    | Lst z, Lst y -> [] 
+    | Lst z, TypInt -> if (z = TypInt) then failwith "Clash in principal type constructor" else failwith "Not unifiable"
+    | Lst z, TypVar b -> if (occurCheck (b) z = false) then [(b, Lst z)] else failwith "Failed occurs check"
+    | Lst z, Arrow(x, y) -> if (z = Arrow(x, y)) then failwith "Clash in principal type constructor" else failwith "Not unifiable"
+    | Lst z, Lst y -> unify (z) (y) 
 
 let te3 = Arrow(TypVar 'a',Arrow (TypVar 'b',TypVar 'c'))
 let te4 = Arrow(TypInt, Arrow(TypVar 'c', TypVar 'a'))
 
 
-let unifier = unify te4 te3
+let unifier = unify te3 te4
 
-System.Console.Write(unify te3 te4)
-
-let tau1 = Arrow(TypVar 'a', TypVar 'a')
-let tau2 = Arrow(TypVar 'b', Arrow(TypVar 'a', TypVar 'a'))
+let tau1 = Arrow(TypInt, Arrow(TypVar 'a', Lst (TypVar 'b')))
+let tau2 = Arrow (TypVar 'a',Arrow (TypInt,Lst TypInt))
 
 
 
