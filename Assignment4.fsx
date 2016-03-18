@@ -22,8 +22,8 @@ let rec occurCheck (v: char) (tau: typExp) : bool =
 
 
 
-let te3 = Arrow(TypInt, Arrow(TypVar 'a', Lst (TypVar 'b')))
-
+//let te3 = Arrow(TypInt, Arrow(TypVar 'a', Lst (TypVar 'b')))
+//let te4 = Arrow (TypVar 'a',Arrow (TypInt,Lst TypInt))
 //System.Console.Write(occurCheck ('c') (te3))
                        
      
@@ -33,12 +33,15 @@ let rec substitute (tau1 : typExp) (v : char) (tau2 : typExp) : typExp =
     else
         match tau2 with
         | TypInt -> TypInt
-        | TypVar a -> if(v = a) then tau1 else TypVar c
+        | TypVar a -> if(v = a) then tau1 else TypVar a
         | Arrow (x, y) -> Arrow(substitute tau1 v x, substitute tau1 v y)
         | Lst x -> Lst(substitute tau1 v x)
 
 
-//let m = substitute (TypInt) ('a') (Arrow(TypVar 'a', Arrow (TypInt, Lst (TypInt))));;
+let m = substitute (TypInt) ('a') (Arrow(TypVar 'a', Arrow (TypVar 'a', Lst (TypInt))))
+
+
+
         
 let applySubst (sigma: substitution) (tau: typExp) : typExp =
     List.fold(fun acc1 (v, texp1) -> substitute (texp1) (v) acc1) (List.fold(fun acc (v, texp) -> substitute (texp) (v) acc) tau sigma) sigma
@@ -47,8 +50,45 @@ let applySubst (sigma: substitution) (tau: typExp) : typExp =
 
 
 
-//let rec unify (tau1: typExp) (tau2:typExp) : substitution =
-//    failwith "Error - not implemented" 
+let rec unify (tau1: typExp) (tau2:typExp) : substitution =
+    match tau1, tau2 with
+    | TypInt, TypInt -> []
+    | TypInt, TypVar b -> 
+                          [(b, TypInt)]
+    | TypInt, Arrow(x, y) -> failwith "Not unifiable"
+    | TypInt, Lst x ->  failwith "Clash in principal type constructor"
+    | TypVar a, TypInt -> 
+                          [(a, TypInt)]
+    | TypVar a, TypVar b -> [(a, TypVar b)]
+    | TypVar a, Arrow(x, y) -> failwith "Not unifiable"
+    | TypVar a, Lst x -> []
+    | Arrow(x, y), TypInt ->  failwith "Not unifiable"
+    | Arrow(x, y), TypVar b ->  failwith "Not unifiable"
+    | Arrow(x, y), Lst z ->  failwith "Not unifiable"
+    | Arrow(x1, y1), Arrow(x2, y2) -> let firstHalf = unify(x1) (x2)
+                                      let newExp1 = applySubst (firstHalf) y1
+                                      let newExp2 = applySubst (firstHalf) y2
+                                      unify newExp1 newExp2 @ firstHalf 
+    | Lst z, TypInt -> failwith "Clash in principal type constructor"
+    | Lst z, TypVar b -> []
+    | Lst z, Arrow(x, y) -> failwith "Not unifiable"
+    | Lst z, Lst y -> [] 
+
+let te3 = Arrow(TypVar 'a',Arrow (TypVar 'b',TypVar 'c'))
+let te4 = Arrow(TypInt, Arrow(TypVar 'c', TypVar 'a'))
+
+
+let unifier = unify te4 te3
+
+System.Console.Write(unify te3 te4)
+
+let tau1 = Arrow(TypVar 'a', TypVar 'a')
+let tau2 = Arrow(TypVar 'b', Arrow(TypVar 'a', TypVar 'a'))
+
+
+
+
+
 (* Use the following signals if unification is not possible:
 
  failwith "Clash in principal type constructor"
@@ -60,11 +100,11 @@ let applySubst (sigma: substitution) (tau: typExp) : typExp =
 
 (*
 
-> let te4 = Prod(TypInt, Arrow(TypVar 'c', TypVar 'a'));;
+> let te4 = Arrow(TypInt, Arrow(TypVar 'c', TypVar 'a'));;
 
-val te4 : typExp = Prod (TypInt,Arrow (TypVar 'c',TypVar 'a'))
+val te4 : typExp = Arrow(TypInt,Arrow (TypVar 'c',TypVar 'a'))
 
-> let te3 = Prod (TypVar 'a',Arrow (TypVar 'b',TypVar 'c'));;
+> let te3 = Arrow(TypVar 'a',Arrow (TypVar 'b',TypVar 'c'));;
 
 val te3 : typExp = Prod (TypVar 'a',Arrow (TypVar 'b',TypVar 'c'))
 

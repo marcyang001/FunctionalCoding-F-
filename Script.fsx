@@ -64,3 +64,9 @@ let n = [[1;2;3]; [2;12;3]; [5;2;5]]
 smash n
 
 
+let rec apply_list l = 
+    match l with 
+    | [] -> (fun x -> x)
+    | f::fs -> (fun x -> apply_list(fs) (f x))
+
+
