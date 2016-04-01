@@ -1,4 +1,4 @@
-﻿
+﻿module hw4
 //module hw4
 
 (* Assignment 4 *) (* Do not edit this line. *)
@@ -21,11 +21,6 @@ let rec occurCheck (v: char) (tau: typExp) : bool =
     | Lst x -> occurCheck(v) (x)
 
 
-
-//let te3 = Arrow(TypInt, Arrow(TypVar 'a', Lst (TypVar 'b')))
-//let te4 = Arrow (TypVar 'a',Arrow (TypInt,Lst TypInt))
-//System.Console.Write(occurCheck ('c') (te3))
-                       
      
 (* substitute typExp tau1 for all occurrences of type variable v in typExp tau2 *)
 let rec substitute (tau1 : typExp) (v : char) (tau2 : typExp) : typExp =
@@ -38,7 +33,7 @@ let rec substitute (tau1 : typExp) (v : char) (tau2 : typExp) : typExp =
         | Lst x -> Lst(substitute tau1 v x)
 
 
-let m = substitute (TypInt) ('a') (Arrow(TypVar 'a', Arrow (TypVar 'a', Lst (TypInt))))
+//let m = substitute (TypInt) ('a') (Arrow(TypVar 'a', Arrow (TypVar 'a', Lst (TypInt))))
 
 
 
@@ -72,17 +67,24 @@ let rec unify (tau1: typExp) (tau2:typExp) : substitution =
     | Lst z, Arrow(x, y) -> failwith "Clash in principal type constructor"
     | Lst z, Lst y -> unify (z) (y) 
 
-let te3 = Arrow(TypVar 'a',Arrow (TypVar 'b',TypVar 'c'))
-let te4 = Arrow(TypInt, Arrow(TypVar 'c', TypVar 'a'))
 
 
-let unifier = unify te3 te4
-
-let tau1 = Arrow(TypInt, Arrow(TypVar 'a', Lst (TypVar 'b')))
-let tau2 = Arrow (TypVar 'a',Arrow (TypInt,Lst TypInt))
+//let te3 = Arrow(TypVar 'a',Arrow (TypVar 'b',TypVar 'c'))
+//let te4 = Arrow(TypInt, Arrow(TypVar 'c', TypVar 'a'))
 
 
+//let unifier = unify te3 te4
 
+//let tau1 = Arrow(TypInt, Arrow(TypVar 'a', Lst (TypVar 'b')))
+//let tau2 = Arrow (TypVar 'a',Arrow (TypInt,Lst TypInt))
+
+
+//let tau3 = Arrow(TypVar 'a', TypVar 'a')
+//let tau4 = Arrow(TypVar 'b', TypVar 'c')
+
+//let te3 = Arrow(TypInt, Arrow(TypVar 'a', Lst (TypVar 'b')))
+//let te4 = Arrow (TypVar 'a',Arrow (TypInt,Lst TypInt))
+//System.Console.Write(occurCheck ('c') (te3))
 
 
 (* Use the following signals if unification is not possible:
@@ -91,10 +93,15 @@ let tau2 = Arrow (TypVar 'a',Arrow (TypInt,Lst TypInt))
  failwith "Failed occurs check"
  failwith "Not unifiable"
 
+
 *)
 
 
+
 (*
+let tau3 = Arrow(TypVar 'a', TypVar 'a')
+- let tau4 = Arrow(TypVar 'b', TypVar 'c')
+- let unifier = unify tau3 tau4;;
 
 > let te4 = Arrow(TypInt, Arrow(TypVar 'c', TypVar 'a'));;
 
