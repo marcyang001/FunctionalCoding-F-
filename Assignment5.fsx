@@ -81,11 +81,6 @@ let parse (inputexp: string): exptree =
 
     expr() //This is part of the top-level function parse.
 
-
-//let example1 = "a+b"
-//let t1 = parse(example1)
-//System.Console.Write(t1)
-
 (* Now for Question 2 *)
 
 (*  Do not change this.  tempstore will be a global variable.  Remember to reset this between
@@ -102,12 +97,8 @@ let codegen (e: exptree) =
                                                                               helper(a, '=')
                                                                               printfn "STORE %i" tempstore
                                                                               helper (b, op)
-                                                                              //if (op = '+') then
-                                                                              //  printfn "ADD %i" tempstore
-                                                                              //elif (op = '*') then
-                                                                              //  printfn "MUL %i" tempstore
                                                                               tempstore <- tempstore - 1 
-                               | (Var(x1)), (Expr(op2, x2, y2)) -> //printfn ""
+                               | (Var(x1)), (Expr(op2, x2, y2)) -> 
                                                                    tempstore <- tempstore + 1 
                                                                    helper(a, '=')
                                                                    printfn "STORE %i" tempstore
@@ -121,7 +112,7 @@ let codegen (e: exptree) =
                                | (Expr(op1, x1, y1)), (Var(x2)) -> 
                                                                    helper(a, '=')
                                                                    helper(b, op)
-                               | (Var(x1)), (Var(x2)) -> //printfn ""
+                               | (Var(x1)), (Var(x2)) -> 
                                                          helper(a, '=')
                                                          helper(b, op)
           | (Var(a)) -> if (tag = '+') then
@@ -130,9 +121,9 @@ let codegen (e: exptree) =
                             printfn "MUL %c" a
                         elif (tag = '=') then
                             printfn "LOAD %c" a
-    helper(e,'=') 
-
-    //This is part of the-level function codegen.  Do not change it.
+    helper(e,'=')
                    
   
+//let t5 = parse(example)
 
+//codegen(t5)
