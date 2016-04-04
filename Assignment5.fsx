@@ -34,7 +34,6 @@ let parse (inputexp: string): exptree =
         sym := inputexp.[!cursor]
     
     let rec expr (): exptree = 
-
         let t = term()
         if (!cursor = inputexp.Length - 1) then
             t
@@ -91,7 +90,7 @@ let mutable tempstore = 0
 let codegen (e: exptree) = 
     let rec helper (e: exptree, tag: char) = 
           match e with
-          | (Expr(op, a, b))-> printfn ""
+          | (Expr(op, a, b))-> 
                                match a, b with
                                | (Expr(op1, x1, y1)), (Expr(op2, x2, y2)) ->  tempstore <- tempstore + 1 
                                                                               helper(a, '=')
@@ -123,7 +122,22 @@ let codegen (e: exptree) =
                             printfn "LOAD %c" a
     helper(e,'=')
                    
-  
-//let t5 = parse(example)
+let t5 = parse(example)
 
-//codegen(t5)
+codegen(t5)
+
+(* 
+> codegen(t5);;
+LOAD  a
+STORE 1
+LOAD  b
+STORE 2
+LOAD  c
+MUL  d
+ADD  e
+ADD 2
+MUL  f
+ADD 1
+MUL  g
+
+*)
