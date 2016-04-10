@@ -43,13 +43,12 @@ let evalTerm (t: term) (x:float):float =
 (* This is very similar in pattern to evalTerm *)
 let integrateTerm (t: term):term = 
     match t with 
-    | Term (c, e) -> Term((c/(float(e + 1)), (e+1)))
+    | Term (c, e) -> Term(c/(float(e + 1)), (e+1))
 
 (* Just 2 lines of code! *)
 
 let rec integrateSeries sigma = 
-    let integral = integrateTerm(first sigma)
-    Seq.delay(fun() -> cons (integral) (integrateSeries(rest sigma)))
+    Seq.delay(fun() -> cons (integrateTerm(first sigma)) (integrateSeries(rest sigma)))
 
 (* Just 2 lines of code! *)
 
@@ -66,7 +65,7 @@ let sigma2 = integrateSeries sigma1
 //printfn "%A" sigma2
 
 
-let rec expSeries = Seq.delay(fun () -> cons (Term(1.0,0)) (cons (Term(1.0,1)) (integrateSeries (rest expSeries))))
+let rec expSeries = Seq.delay(fun () -> cons(Term(1.0, 0)) (cons (Term(1.0,1)) (integrateSeries (rest expSeries))))
 (* Just one line!  Do NOT forget to delay the code. *)
 
 
