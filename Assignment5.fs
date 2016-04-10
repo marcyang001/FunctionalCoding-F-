@@ -122,9 +122,9 @@ let codegen (e: exptree) =
                             printfn "LOAD %c" a
     helper(e,'=')
                    
-let t5 = parse(example)
+//let t5 = parse(example)
 
-codegen(t5)
+//codegen(t5)
 
 (* 
 > codegen(t5);;
