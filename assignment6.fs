@@ -56,12 +56,16 @@ let rec integrateSeries sigma =
 (* Examples for testing. *)
 let sigma1 = Seq.initInfinite (fun i -> Term(1.0,i))
 
-//let integral = prefix 5 (integrateSeries(sigma1))
+let sigma2 = integrateSeries sigma1
+
+let integral = prefix 5 (sigma2)
+
+
 
 //printfn "%A" integral
 
 
-let sigma2 = integrateSeries sigma1
+
 //printfn "%A" sigma2
 
 
@@ -69,15 +73,14 @@ let rec expSeries = Seq.delay(fun () -> cons(Term(1.0, 0)) (cons (Term(1.0,1)) (
 (* Just one line!  Do NOT forget to delay the code. *)
 
 
-//let v = prefix 5 expSeries
-//printfn "%A" v
-
-//printfn "%A" prefix 5 expSeries
-
-
 let rec sumSeries (sigma: seq<term>) (x: float) (n: int) : float =
     if (n = 0) then 0.0
     else (evalTerm(first sigma) x) + (sumSeries (rest sigma) (x) (n-1))
+
+//sumSeries expSeries 1.0 10
+
+//printfn "%f" (sumSeries expSeries 1.0 10)
+
 (* Just 2 lines of code! *)
 
 
