@@ -28,13 +28,12 @@ let rec expand num den radix =
     Seq.delay(fun () -> if num > den then expand(num % den) den radix 
                         else 
                             cons ((num * radix)/den) (expand (((num * radix))%den) den radix))
-  (* Just three lines of code!  Do not forget to delay the execution.*)
+
 
 
 (* Question 2 *)
 
 type term = Term of float * int
-
 (* pown is what you use to raise a float to an integer power. *)
 let evalTerm (t: term) (x:float):float = 
   match t with
